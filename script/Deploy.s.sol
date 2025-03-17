@@ -2,22 +2,26 @@
 pragma solidity ^0.8.20;
 
 import "forge-std/Script.sol";
+import "../src/access/CompanyRegistry.sol";
 import "../src/tokens/IdolCard.sol";
+import "../src/market/IdolMarket.sol";
+import "../src/market/IdolAuction.sol";
 
 contract DeployScript is Script {
     function run() external {
-        // 获取部署者私钥
         uint256 deployerPrivateKey = vm.envUint("PRIVATE_KEY");
-        
-        // 开始部署
         vm.startBroadcast(deployerPrivateKey);
 
-        // 部署 IdolCard 合约
-        IdolCard idolCard = new IdolCard();
-
-        // 创建测试系列
-        idolCard.createSeries("First Series", 1000);
+        CompanyRegistry companyRegistry = new CompanyRegistry();
+        IdolCard idolCard = new IdolCard(address(companyRegistry));
+        IdolMarket idolMarket = new IdolMarket(address(idolCard));
+        IdolAuction idolAuction = new IdolAuction(address(idolCard));
 
         vm.stopBroadcast();
+
+        console.log("CompanyRegistry deployed at:", address(companyRegistry));
+        console.log("IdolCard deployed at:", address(idolCard));
+        console.log("IdolMarket deployed at:", address(idolMarket));
+        console.log("IdolAuction deployed at:", address(idolAuction));
     }
-} 
+}
